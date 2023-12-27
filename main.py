@@ -15,10 +15,10 @@ def scroll_down(browser):
     browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     time.sleep(2)
 
-options = webdriver.FirefoxOptions()
+options = webdriver.ChromeOptions()
 options.add_argument('--headless')
 
-with webdriver.Firefox(options=options) as browser:
+with webdriver.Chrome(options=options) as browser:
     url = 'https://twitter.com/'
     browser.get(url)
 
