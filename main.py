@@ -1,3 +1,5 @@
+import datetime
+import os
 import time
 import pandas as pd
 from selenium import webdriver
@@ -6,11 +8,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from slugify import slugify
+import requests
 
-username = 'your_username'
-password = 'your_password'
+username = "asdwww416925"
+password = "19961217aA"
 max_tweets = 100
-topic = 'python'
+topic = "from:freya7974"
 
 def scroll_down(browser):
     browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -80,11 +84,21 @@ with webdriver.Chrome(options=options) as browser:
 
             current_tweets += 1
 
+        for img in browser.find_elements(By.XPATH, '//img[@alt="Image"]'):
+            url = img.get_attribute("src")
+            img_blob = requests.get(url).content
+            path = os.path.join(os.getcwd(), slugify(url) + ".jpg")
+            if os.path.exists(path):
+                continue
+            with open(path, "wb") as f:
+                f.write(img_blob)
+
         print(f"Scraped {current_tweets} tweets")
 
         if current_tweets >= max_tweets:
             break
 
     df = pd.DataFrame({'user': user_data, 'text': text_data, 'time': time_data})
-    df.to_csv('tweets.csv', index=False)
+    ts = datetime.strftime(datetime.now(), "%Y-%m-%d")
+    df.to_csv(f'tweets_{ts}.csv', index=False)
     print(f"Total {current_tweets} tweets scraped")
