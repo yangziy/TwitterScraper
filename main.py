@@ -1,6 +1,7 @@
 import time
 import pandas as pd
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -17,13 +18,9 @@ def scroll_down(browser):
 
 options = webdriver.ChromeOptions()
 options.add_argument('--headless')
+options.add_argument("user-data-dir=selenium")
 
-with webdriver.Chrome(options=options) as browser:
-    url = 'https://twitter.com/'
-    browser.get(url)
-
-    wait = WebDriverWait(browser, 10)
-
+def login(username, password, topic, browser, wait):
     login_button = wait.until(EC.presence_of_element_located((By.XPATH, '//a[@href="/login"]')))
     login_button.click()
 
@@ -36,6 +33,17 @@ with webdriver.Chrome(options=options) as browser:
     password_input = wait.until(EC.presence_of_element_located((By.XPATH, './/input[@name="password"]')))
     password_input.send_keys(password)
     password_input.send_keys(Keys.RETURN)
+
+with webdriver.Chrome(options=options) as browser:
+    url = 'https://twitter.com/'
+    browser.get(url)
+
+    wait = WebDriverWait(browser, 10)
+
+    try:
+        login(username, password, topic, browser, wait)
+    except TimeoutException:
+        pass
 
     wait.until(EC.presence_of_element_located((By.XPATH, '//input[@enterkeyhint="search"]')))
 
